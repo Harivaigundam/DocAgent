@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentor - Document Extraction</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Documentor</h1>
+            <p class="subtitle">Multi-agent Document Extraction System</p>
+        </header>
+
+        <main>
+            <section class="upload-section">
+                <h2>Upload Document</h2>
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="file">Select File:</label>
+                        <input type="file" id="file" name="file" accept=".txt,.pdf,.doc,.docx" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="docType">Document Type (optional):</label>
+                        <select id="docType" name="docType">
+                            <option value="">Auto-detect</option>
+                            <option value="invoice">Invoice</option>
+                            <option value="receipt">Receipt</option>
+                            <option value="contract">Contract</option>
+                            <option value="report">Report</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-primary">Extract Data</button>
+                </form>
+                <div id="loading" class="loading hidden">
+                    <div class="spinner"></div>
+                    <p>Processing document...</p>
+                </div>
+            </section>
+
+            <section id="resultSection" class="result-section hidden">
+                <h2>Extraction Result</h2>
+                <div class="result-card">
+                    <div class="result-header">
+                        <span id="docType" class="doc-type-badge"></span>
+                        <span id="confidence" class="confidence-badge"></span>
+                    </div>
+                    <div id="extractionResult" class="extraction-result"></div>
+                    <div class="result-meta">
+                        <div class="meta-item">
+                            <span class="label">Model Used:</span>
+                            <span id="modelUsed" class="value"></span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="label">Cost:</span>
+                            <span id="cost" class="value"></span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="label">Guardrails:</span>
+                            <span id="guardrails" class="value"></span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="label">Requires Review:</span>
+                            <span id="requiresReview" class="value"></span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="errorSection" class="error-section hidden">
+                <h2>Error</h2>
+                <div class="error-card">
+                    <p id="errorMessage"></p>
+                </div>
+            </section>
+
+            <section class="info-section">
+                <div class="info-card">
+                    <h3>Cost Summary</h3>
+                    <div id="costSummary" class="cost-summary">
+                        <p>Total Cost: <span id="totalCost">$0.00</span></p>
+                        <p>Documents Processed: <span id="docsProcessed">0</span></p>
+                    </div>
+                    <button id="refreshCosts" class="btn-secondary">Refresh</button>
+                </div>
+
+                <div class="info-card">
+                    <h3>Available Models</h3>
+                    <div id="modelList" class="model-list"></div>
+                </div>
+            </section>
+
+            <section class="review-section">
+                <h2>Review Queue</h2>
+                <div id="reviewQueue" class="review-queue">
+                    <p>No items in review queue</p>
+                </div>
+                <button id="refreshQueue" class="btn-secondary">Refresh Queue</button>
+            </section>
+        </main>
+
+        <footer>
+            <p>Documentor v1.0.0 - Powered by LangGraph</p>
+        </footer>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

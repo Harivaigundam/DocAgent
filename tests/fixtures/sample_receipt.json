@@ -1,0 +1,13 @@
+{
+    "store_name": "TechSupply Pro",
+    "date": "2026-08-20",
+    "total": 287.45,
+    "subtotal": 265.00,
+    "tax": 22.45,
+    "items": [
+        {"name": "USB-C Hub Adapter", "price": 49.99, "quantity": 2},
+        {"name": "Mechanical Keyboard", "price": 129.99, "quantity": 1},
+        {"name": "Mouse Pad XL", "price": 24.99, "quantity": 2}
+    ],
+    "payment_method": "Credit Card ending 4242"
+}
