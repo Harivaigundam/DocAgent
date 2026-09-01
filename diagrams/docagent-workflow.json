@@ -1,0 +1,77 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "DocAgent Overview Workflow",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "diagrams/docagent-workflow.html"
+  },
+  "lanes": [
+    { "id": "client", "label": "Client" },
+    { "id": "api", "label": "API & Orchestration" },
+    { "id": "agents", "label": "Extraction Agents" },
+    { "id": "guard", "label": "Guardrails & Review", "variant": "exception" }
+  ],
+  "phases": [
+    { "id": "ingest", "label": "Ingest", "fromCol": 0, "toCol": 1 },
+    { "id": "classify", "label": "Detect + extract", "fromCol": 2, "toCol": 3, "variant": "emphasis" },
+    { "id": "verify", "label": "Guard + deliver", "fromCol": 4, "toCol": 5, "variant": "dashed" }
+  ],
+  "groups": [
+    { "id": "cascade_loop", "label": "Model cascade loop", "lane": "agents", "fromCol": 3, "toCol": 4, "variant": "emphasis" },
+    { "id": "hitl_zone", "label": "Human-in-the-loop", "lane": "guard", "fromCol": 4, "toCol": 5, "variant": "security" }
+  ],
+  "mainPath": ["upload", "parse", "detect", "route", "extract", "guard", "final"],
+  "nodes": [
+    { "id": "upload", "lane": "client", "col": 0, "type": "external", "label": "User Upload", "sublabel": "PDF · text · image", "width": 140 },
+    { "id": "parse", "lane": "api", "col": 1, "type": "backend", "label": "File Parser", "sublabel": "text + OCR fallback", "width": 140 },
+    { "id": "detect", "lane": "api", "col": 2, "type": "backend", "label": "Type Detection", "sublabel": "LLM classification", "width": 140 },
+    { "id": "route", "lane": "api", "col": 3, "type": "backend", "label": "Orchestrator", "sublabel": "LangGraph state machine", "width": 140 },
+    { "id": "extract", "lane": "agents", "col": 3, "type": "backend", "label": "Extraction Agent", "sublabel": "MCP extract tool", "tag": "4 specialized agents", "width": 140 },
+    { "id": "cascade", "lane": "agents", "col": 4, "type": "cloud", "label": "Model Cascade", "sublabel": "ollama → groq → openai", "width": 140 },
+    { "id": "guard", "lane": "guard", "col": 4, "type": "security", "label": "Guardrails", "sublabel": "schema · PII · consistency", "width": 140 },
+    { "id": "review", "lane": "guard", "col": 5, "type": "security", "label": "Human Review", "sublabel": "approve / reject", "width": 140 },
+    { "id": "final", "lane": "api", "col": 5, "type": "backend", "label": "Final Output", "sublabel": "fields + confidence", "width": 140 },
+    { "id": "costs", "lane": "api", "col": 4, "type": "database", "label": "Cost Tracker", "sublabel": "per-model spend", "width": 140 }
+  ],
+  "edges": [
+    { "id": "e-upload-parse", "from": "upload", "to": "parse" },
+    { "id": "e-parse-detect", "from": "parse", "to": "detect" },
+    { "id": "e-detect-route", "from": "detect", "to": "route", "label": "detected type" },
+    { "id": "e-route-extract", "from": "route", "to": "extract", "label": "dispatch by type", "variant": "emphasis" },
+    { "id": "e-extract-cascade", "from": "extract", "to": "cascade", "label": "try tier", "role": "branch" },
+    { "id": "e-cascade-extract", "from": "cascade", "to": "extract", "label": "until threshold", "variant": "dashed", "role": "return" },
+    { "id": "e-extract-guard", "from": "extract", "to": "guard", "label": "validate fields" },
+    { "id": "e-guard-final", "from": "guard", "to": "final", "label": "passed", "variant": "emphasis" },
+    { "id": "e-guard-review", "from": "guard", "to": "review", "label": "low confidence", "variant": "security", "role": "branch" },
+    { "id": "e-review-final", "from": "review", "to": "final", "label": "approved", "variant": "dashed", "role": "return" },
+    { "id": "e-final-costs", "from": "final", "to": "costs", "label": "record", "variant": "dashed", "role": "branch" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Main Path",
+      "items": [
+        "Upload → parse → detect type → extract → guardrails → output",
+        "Four specialized agents: invoice · receipt · contract · report"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Model Cascade",
+      "items": [
+        "Tiers run cheapest-first: ollama → groq → openai",
+        "Each tier must beat its configured confidence threshold"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Safety & Review",
+      "items": [
+        "Schema, PII, and math checks gate delivery",
+        "Low-confidence extractions wait for human approve / reject"
+      ]
+    }
+  ]
+}

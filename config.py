@@ -35,6 +35,7 @@ class Settings(BaseSettings):
     # API Keys
     groq_api_key: SecretStr = Field(default=SecretStr(""), description="Groq API key")
     openai_api_key: SecretStr = Field(default=SecretStr(""), description="OpenAI API key")
+    openai_base_url: str = Field(default="", description="OpenAI-compatible API base URL")
     ollama_base_url: str = Field(default="http://localhost:11434", description="Ollama base URL")
 
     # Application Settings

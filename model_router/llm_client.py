@@ -27,7 +27,7 @@ async def call_llm(
     elif provider == "ollama":
         return await _call_ollama(model, prompt, base_url, temperature, max_tokens)
     elif provider == "openai":
-        return await _call_openai(model, prompt, api_key, temperature, max_tokens)
+        return await _call_openai(model, prompt, api_key, base_url, temperature, max_tokens)
     else:
         raise ValueError(f"Unknown provider: {provider}")
 
@@ -78,20 +78,27 @@ async def _call_ollama(
 
 
 async def _call_openai(
-    model: str, prompt: str, api_key: Optional[str], temperature: float, max_tokens: int
+    model: str, prompt: str, api_key: Optional[str], base_url: Optional[str], temperature: float, max_tokens: int
 ) -> str:
     """Call OpenAI API."""
     from openai import AsyncOpenAI
 
     key = api_key
-    if not key:
+    url = base_url
+    if not key or not url:
         from config import get_settings
-        key = get_settings().openai_api_key.get_secret_value()
+        settings = get_settings()
+        key = key or settings.openai_api_key.get_secret_value()
+        url = url or settings.openai_base_url
 
     if not key:
         raise ValueError("No OpenAI API key configured")
 
-    client = AsyncOpenAI(api_key=key)
+    client_kwargs: dict[str, Any] = {"api_key": key}
+    if url:
+        client_kwargs["base_url"] = url
+
+    client = AsyncOpenAI(**client_kwargs)
     completion = await client.chat.completions.create(
         model=model,
         messages=[{"role": "user", "content": prompt}],
